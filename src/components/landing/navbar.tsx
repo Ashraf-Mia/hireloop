@@ -8,9 +8,9 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const links = [
-  { label: "Browse Jobs", href: "#" },
-  { label: "Company", href: "#" },
-  { label: "Pricing", href: "#" },
+  { label: "Browse Jobs", href: "/jobs" },
+  { label: "Company", href: "/company" },
+  { label: "Pricing", href: "/pricing" },
 ];
 
 export function Navbar() {
@@ -49,14 +49,17 @@ export function Navbar() {
             ))}
             <span className="h-4 w-px bg-white/20" />
             <Link
-              href="#"
+              href="/sign-in"
               className="text-xs font-medium text-indigo-400 transition-colors hover:text-indigo-300"
             >
               Sign in
             </Link>
-            <Button className="h-9 rounded-lg bg-indigo-500 px-5 text-xs font-medium text-white shadow-[0_0_20px_rgba(99,102,241,0.45)] hover:bg-indigo-400">
+            <Link
+              href="/sign-up"
+              className="inline-flex h-9 items-center justify-center rounded-lg bg-indigo-500 px-5 text-xs font-medium text-white shadow-[0_0_20px_rgba(99,102,241,0.45)] transition-colors hover:bg-indigo-400"
+            >
               Get Started
-            </Button>
+            </Link>
           </nav>
 
           {/* Mobile toggle */}
