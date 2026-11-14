@@ -8,23 +8,51 @@ import { Input } from "@/components/ui/input";
 import { AuthShell } from "./auth-shell";
 import { PasswordInput } from "./password-input";
 import { SocialButtons } from "./social-buttons";
-
+import { signIn } from "@/lib/auth-client";
+import { toast } from "../ui/toast";
+import { useRouter } from "next/navigation";
 export function SignInForm() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
 
-    const data = new FormData(e.currentTarget);
-    const email = data.get("email");
-    const password = data.get("password");
+    try {
+      const formData = new FormData(e.currentTarget);
+      const user = Object.fromEntries(formData.entries()) as {
+        email: string;
+        password: string;
+      };
 
-    // TODO: এখানে নিজের লগইন API / NextAuth / Firebase কল বসাও
-    console.log({ email, password });
+      const { data, error } = await signIn.email({
+        ...user,
+        callbackURL: "/",
+      });
 
-    await new Promise((r) => setTimeout(r, 1200));
-    setLoading(false);
+      if (error) {
+        console.log(error);
+        toast.add({
+          type: "Warning",
+          title: "Sign in failed",
+          description: error.message || "Invalid email or password.",
+        });
+        return;
+      }
+
+      if (data) {
+        toast.add({
+          type: "Success",
+          title: "Welcome back!",
+          description: "You have signed in successfully.",
+        });
+        router.push("/");
+      }
+    } finally {
+      await new Promise((r) => setTimeout(r, 1200));
+      setLoading(false);
+    }
   }
 
   return (
