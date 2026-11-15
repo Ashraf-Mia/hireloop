@@ -8,17 +8,21 @@ import { LayoutDashboard, Loader2, LogOut, Menu, User, X } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import { UserAvatar, UserMenu, useSignOut } from "./user-menu";
 
-const links = [
-  { label: "Browse Jobs", href: "/jobs" },
-  { label: "Company", href: "/company" },
-  { label: "Pricing", href: "/pricing" },
-];
-
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const { data: session, isPending } = useSession();
   const user = session?.user;
   const { handleSignOut, loading } = useSignOut();
+
+  const links = [
+    { label: "Browse Jobs", href: "/jobs" },
+    { label: "Company", href: "/company" },
+    { label: "Pricing", href: "/pricing" },
+    // {
+    //   label: "Dashboard",
+    //   href: `/dashboard/${session?.user.role || "seeker"}`,
+    // },
+  ];
 
   return (
     <motion.header
@@ -141,7 +145,7 @@ export function Navbar() {
                       Profile
                     </Link>
                     <Link
-                      href="/dashboard"
+                      href={`/dashboard/${session.user.role || "seeker"}`}
                       onClick={() => setOpen(false)}
                       className="flex items-center gap-3 text-sm text-white/80"
                     >

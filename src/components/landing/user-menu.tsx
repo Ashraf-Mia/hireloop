@@ -11,6 +11,7 @@ type UserType = {
   name?: string | null;
   email?: string | null;
   image?: string | null;
+  role?: string | null;
 };
 
 export function UserAvatar({
@@ -87,7 +88,11 @@ export function UserMenu({ user }: { user: UserType }) {
 
   const items = [
     { label: "Profile", href: "/profile", icon: User },
-    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    {
+      label: "Dashboard",
+      href: `/dashboard/${user.role || "seeker"}`,
+      icon: LayoutDashboard,
+    },
   ];
 
   return (
