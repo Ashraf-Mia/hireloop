@@ -29,6 +29,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { createJob } from "@/lib/actions/jobs";
 
 const JOB_CATEGORIES = [
   "Engineering & Tech",
@@ -46,7 +47,7 @@ const JOB_TYPES = ["Full-time", "Part-time", "Contract", "Internship"];
 const SALARY_FREQUENCIES = ["per hour", "per month", "per year"];
 
 // Everything the form collects, kept in one flat object.
-type JobForm = {
+export type JobForm = {
   jobTitle: string;
   companyName: string;
   category: string;
@@ -103,11 +104,16 @@ const NewJobPage = () => {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    const jobData: JobForm = { ...form };
+
+    const result = await createJob(jobData);
+    console.log("createdJob result", result);
     // Replace with your API call when the backend is ready.
-    console.log("New job:", form);
-  }
+    // console.log("New job:", form);
+  };
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6">
@@ -352,7 +358,8 @@ const NewJobPage = () => {
 
           <Field>
             <FieldLabel htmlFor="qualifications">
-              Qualifications & Requirements <span className="text-brand">*</span>
+              Qualifications & Requirements{" "}
+              <span className="text-brand">*</span>
             </FieldLabel>
             <Textarea
               id="qualifications"
@@ -369,7 +376,10 @@ const NewJobPage = () => {
         </Section>
 
         <div className="flex items-center justify-end gap-2">
-          <Button type="submit" className="gap-2 bg-brand text-brand-foreground hover:bg-brand/90">
+          <Button
+            type="submit"
+            className="gap-2 bg-brand text-brand-foreground hover:bg-brand/90"
+          >
             Publish Job
             <Briefcase />
           </Button>
