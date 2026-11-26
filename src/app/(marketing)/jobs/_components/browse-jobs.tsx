@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { AlertCircle, Briefcase } from "lucide-react";
 
 import { JOB_CATEGORIES, JOB_TYPES, type Job } from "@/types/job";
 import { JobCard } from "./job-card";
-import { JobFilters, type FilterOption } from "./job-filters";
+import { JobFilters } from "./job-filters";
 import { Pagination } from "./pagination";
 import { SearchBar } from "./search-bar";
 import { SortSelect, type SortValue } from "./sort-select";
@@ -18,47 +18,31 @@ type BrowseJobsProps = {
 };
 
 export function BrowseJobs({ jobs, error }: BrowseJobsProps) {
-  const [search, setSearch] = useState("");
-  const [selectedType, setSelectedType] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [sort, setSort] = useState<SortValue>("recent");
   const [page, setPage] = useState(1);
 
-  // Facet counts respect the other active filter.
-  const typeOptions: FilterOption[] = JOB_TYPES.map((type) => ({
+  const typeOptions = JOB_TYPES.map((type) => ({
     label: type,
     value: type,
-    count: jobs.filter(
-      (job) =>
-        job.jobType === type &&
-        (!selectedCategory || job.category === selectedCategory),
-    ).length,
+    count: jobs.filter((job) => job.jobType === type).length,
   }));
 
-  const categoryOptions: FilterOption[] = JOB_CATEGORIES.map((category) => ({
+  const categoryOptions = JOB_CATEGORIES.map((category) => ({
     label: category,
     value: category,
-    count: jobs.filter(
-      (job) =>
-        job.category === category &&
-        (!selectedType || job.jobType === selectedType),
-    ).length,
+    count: jobs.filter((job) => job.category === category).length,
   }));
 
-  const filteredJobs = useMemo(
-    () =>
-      jobs.filter(
-        (job) =>
-          (!selectedType || job.jobType === selectedType) &&
-          (!selectedCategory || job.category === selectedCategory),
-      ),
-    [jobs, selectedType, selectedCategory],
-  );
+  // Only keep jobs that match the selected type and category.
+  const filteredJobs = jobs.filter((job) => {
+    if (selectedType && job.jobType !== selectedType) return false;
+    if (selectedCategory && job.category !== selectedCategory) return false;
+    return true;
+  });
 
-  const sortedJobs = useMemo(
-    () => sortJobs(filteredJobs, sort),
-    [filteredJobs, sort],
-  );
+  const sortedJobs = sortJobs(filteredJobs, sort);
   const totalPages = Math.max(1, Math.ceil(sortedJobs.length / JOBS_PER_PAGE));
   const currentPage = Math.min(page, totalPages);
   const visibleJobs = sortedJobs.slice(
@@ -66,25 +50,15 @@ export function BrowseJobs({ jobs, error }: BrowseJobsProps) {
     currentPage * JOBS_PER_PAGE,
   );
 
-  function handleSearch() {
-    setPage(1);
-    // TODO: update the URL search params with `search`.
-  }
-
-  // Single-select: picking another value replaces the current one, and
-  // clicking the active value clears the filter.
+  // Clicking the selected filter again clears it.
   function selectType(type: string) {
-    setSelectedType((current) => (current === type ? null : type));
+    setSelectedType(selectedType === type ? "" : type);
     setPage(1);
-    // TODO: update the URL search params with `selectedType`.
   }
 
   function selectCategory(category: string) {
-    setSelectedCategory((current) =>
-      current === category ? null : category,
-    );
+    setSelectedCategory(selectedCategory === category ? "" : category);
     setPage(1);
-    // TODO: update the URL search params with `selectedCategory`.
   }
 
   function handleSort(value: SortValue) {
@@ -95,11 +69,7 @@ export function BrowseJobs({ jobs, error }: BrowseJobsProps) {
 
   return (
     <div>
-      <SearchBar
-        value={search}
-        onValueChange={setSearch}
-        onSubmit={handleSearch}
-      />
+      <SearchBar />
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start">
         <JobFilters

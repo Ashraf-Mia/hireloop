@@ -2,7 +2,7 @@
 
 import { Checkbox } from "@/components/ui/checkbox";
 
-export type FilterOption = {
+type FilterOption = {
   label: string;
   value: string;
   count: number;
@@ -11,16 +11,11 @@ export type FilterOption = {
 type FilterGroupProps = {
   title: string;
   options: FilterOption[];
-  selected: string | null;
+  selected: string;
   onSelect: (value: string) => void;
 };
 
-export function FilterGroup({
-  title,
-  options,
-  selected,
-  onSelect,
-}: FilterGroupProps) {
+function FilterGroup({ title, options, selected, onSelect }: FilterGroupProps) {
   return (
     <section className="mt-5">
       <h3 className="text-sm font-medium text-white">{title}</h3>
@@ -58,8 +53,8 @@ export function FilterGroup({
 type JobFiltersProps = {
   typeOptions: FilterOption[];
   categoryOptions: FilterOption[];
-  selectedType: string | null;
-  selectedCategory: string | null;
+  selectedType: string;
+  selectedCategory: string;
   onSelectType: (value: string) => void;
   onSelectCategory: (value: string) => void;
 };
