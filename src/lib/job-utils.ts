@@ -48,8 +48,12 @@ const frequencyShort: Record<string, string> = {
 };
 
 export function formatSalary(job: Job) {
+  if (!job.minSalary && !job.maxSalary) return "Salary not disclosed";
+
   const freq = frequencyShort[job.frequency] ?? job.frequency;
-  return `$${shortMoney(job.minSalary)} – $${shortMoney(job.maxSalary)} / ${freq}`;
+  const min = job.minSalary ? `$${shortMoney(job.minSalary)}` : "—";
+  const max = job.maxSalary ? `$${shortMoney(job.maxSalary)}` : "—";
+  return `${min} – ${max} / ${freq}`;
 }
 
 export function formatLocation(job: Job) {

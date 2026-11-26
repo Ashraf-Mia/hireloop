@@ -24,6 +24,9 @@ export type JobForm = {
   applicantsCount?: number;
 };
 
+// A job as it comes back from the API.
+export type Job = JobForm;
+
 export const JOB_TYPES = ["Full-time", "Part-time", "Contract", "Internship"];
 export const SALARY_FREQUENCIES = ["per hour", "per month", "per year"];
 export const JOB_CATEGORIES = [

@@ -1,32 +1,55 @@
-import { getJobs } from "@/lib/api/jobs-api";
+import { Suspense } from "react";
 import type { Metadata } from "next";
 
+import { getJobs } from "@/lib/api/jobs-api";
+import type { Job } from "@/types/job";
+import { BrowseJobs } from "./_components/browse-jobs";
+import { JobsSkeleton } from "./_components/jobs-skeleton";
+
 export const metadata: Metadata = {
-  title: "Pricing | HireLoop",
+  title: "Browse Jobs | HireLoop",
 };
 
-export default async function BrowseJobsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-  const search = await searchParams;
-  const urlSearch = new URLSearchParams(search as Record<string, string>);
-  const query = urlSearch.toString();
-  console.log("search params", query);
-
-  const jobs = await getJobs(query);
+export default function BrowseJobsPage(props: PageProps<"/jobs">) {
   return (
-    <main className="min-h-screen bg-black px-4 pt-32 text-white sm:px-6">
+    <main className="min-h-screen bg-black px-4 pt-28 pb-16 text-white sm:px-6">
       <div className="mx-auto max-w-6xl">
-        <h1 className="text-4xl font-bold">Jobs</h1>
-        {/* এখানে পেজের কনটেন্ট */}
-        <ul>
-          {jobs.map((jobs) => (
-            <li key={jobs._id}>{jobs.jobTitle}</li>
-          ))}
-        </ul>
+        <Suspense fallback={<JobsSkeleton />}>
+          <JobsContent searchParams={props.searchParams} />
+        </Suspense>
       </div>
     </main>
   );
+}
+
+async function JobsContent({
+  searchParams,
+}: Pick<PageProps<"/jobs">, "searchParams">) {
+  const params = await searchParams;
+  const query = buildQuery(params);
+
+  let jobs: Job[] = [];
+  let error: string | null = null;
+
+  try {
+    jobs = await getJobs(query);
+  } catch {
+    error = "Could not load jobs. Make sure the API server is running.";
+  }
+
+  return <BrowseJobs jobs={jobs} error={error} />;
+}
+
+function buildQuery(params: Record<string, string | string[] | undefined>) {
+  const query = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(params)) {
+    if (Array.isArray(value)) {
+      value.forEach((item) => query.append(key, item));
+    } else if (value !== undefined) {
+      query.set(key, value);
+    }
+  }
+
+  return query.toString();
 }
