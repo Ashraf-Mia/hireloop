@@ -11,15 +11,15 @@ export type FilterOption = {
 type FilterGroupProps = {
   title: string;
   options: FilterOption[];
-  selected: string[];
-  onToggle: (value: string) => void;
+  selected: string | null;
+  onSelect: (value: string) => void;
 };
 
 export function FilterGroup({
   title,
   options,
   selected,
-  onToggle,
+  onSelect,
 }: FilterGroupProps) {
   return (
     <section className="mt-5">
@@ -27,7 +27,7 @@ export function FilterGroup({
 
       <div className="mt-3 flex flex-col gap-3">
         {options.map((option) => {
-          const checked = selected.includes(option.value);
+          const checked = selected === option.value;
 
           return (
             <label
@@ -37,7 +37,7 @@ export function FilterGroup({
               <span className="flex items-center gap-3">
                 <Checkbox
                   checked={checked}
-                  onCheckedChange={() => onToggle(option.value)}
+                  onCheckedChange={() => onSelect(option.value)}
                 />
                 <span className="text-sm text-white/70 transition-colors group-hover:text-white">
                   {option.label}
@@ -56,21 +56,38 @@ export function FilterGroup({
 }
 
 type JobFiltersProps = {
-  options: FilterOption[];
-  selected: string[];
-  onToggle: (value: string) => void;
+  typeOptions: FilterOption[];
+  categoryOptions: FilterOption[];
+  selectedType: string | null;
+  selectedCategory: string | null;
+  onSelectType: (value: string) => void;
+  onSelectCategory: (value: string) => void;
 };
 
-export function JobFilters({ options, selected, onToggle }: JobFiltersProps) {
+export function JobFilters({
+  typeOptions,
+  categoryOptions,
+  selectedType,
+  selectedCategory,
+  onSelectType,
+  onSelectCategory,
+}: JobFiltersProps) {
   return (
     <aside className="h-fit rounded-xl border border-white/10 bg-[#0d0d0d] p-5">
       <h2 className="text-lg font-semibold text-white">Filters</h2>
 
       <FilterGroup
         title="Job Type"
-        options={options}
-        selected={selected}
-        onToggle={onToggle}
+        options={typeOptions}
+        selected={selectedType}
+        onSelect={onSelectType}
+      />
+
+      <FilterGroup
+        title="Job Category"
+        options={categoryOptions}
+        selected={selectedCategory}
+        onSelect={onSelectCategory}
       />
     </aside>
   );

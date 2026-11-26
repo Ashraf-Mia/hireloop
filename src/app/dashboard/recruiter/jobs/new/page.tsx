@@ -36,8 +36,8 @@ const initialForm: JobForm = {
   _id: "",
   jobTitle: "",
   companyName: "",
-  category: "",
-  jobType: "Full-time",
+  category: JOB_CATEGORIES[0],
+  jobType: JOB_TYPES[0],
   remote: false,
   location: "",
   deadline: "",
@@ -151,55 +151,62 @@ const NewJobPage = () => {
             />
           </Field>
 
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field>
-              <FieldLabel htmlFor="companyName">
-                Company Name <span className="text-brand">*</span>
-              </FieldLabel>
-              <InputGroup>
-                <InputGroupAddon>
-                  <Building2 />
-                </InputGroupAddon>
-                <InputGroupInput
-                  id="companyName"
-                  value={form.companyName}
-                  onChange={(e) => update("companyName", e.target.value)}
-                  placeholder="HirePulse Network"
-                  required
-                />
-              </InputGroup>
-            </Field>
+          <Field>
+            <FieldLabel htmlFor="companyName">
+              Company Name <span className="text-brand">*</span>
+            </FieldLabel>
+            <InputGroup>
+              <InputGroupAddon>
+                <Building2 />
+              </InputGroupAddon>
+              <InputGroupInput
+                id="companyName"
+                value={form.companyName}
+                onChange={(e) => update("companyName", e.target.value)}
+                placeholder="HirePulse Network"
+                required
+              />
+            </InputGroup>
+          </Field>
 
-            <Field>
-              <FieldLabel htmlFor="category">
-                Job Category <span className="text-brand">*</span>
-              </FieldLabel>
-              <Select
-                value={form.category}
-                onValueChange={(value) => update("category", value ?? "")}
-              >
-                <SelectTrigger id="category" className="w-full">
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {JOB_CATEGORIES.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-          </div>
+          <Field>
+            <FieldLabel>
+              Job Category <span className="text-brand">*</span>
+            </FieldLabel>
+            <ToggleGroup
+              multiple={false}
+              variant="outline"
+              value={[form.category]}
+              onValueChange={(value) => {
+                const next = value[0];
+                if (next) update("category", next);
+              }}
+              className="grid w-full grid-cols-2 gap-2 sm:grid-cols-4"
+            >
+              {JOB_CATEGORIES.map((category) => (
+                <ToggleGroupItem
+                  key={category}
+                  value={category}
+                  className="h-10 w-full aria-pressed:border-brand aria-pressed:bg-brand/10 aria-pressed:text-foreground"
+                >
+                  {category}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </Field>
 
           <Field>
             <FieldLabel>
               Job Type <span className="text-brand">*</span>
             </FieldLabel>
             <ToggleGroup
+              multiple={false}
               variant="outline"
               value={[form.jobType]}
-              onValueChange={(value) => update("jobType", value[0] ?? "")}
+              onValueChange={(value) => {
+                const next = value[0];
+                if (next) update("jobType", next);
+              }}
               className="grid w-full grid-cols-2 gap-2 sm:grid-cols-4"
             >
               {JOB_TYPES.map((type) => (
