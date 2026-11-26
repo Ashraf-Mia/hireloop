@@ -11,11 +11,16 @@ type FilterOption = {
 type FilterGroupProps = {
   title: string;
   options: FilterOption[];
-  selected: string;
-  onSelect: (value: string) => void;
+  selected?: string;
+  onSelect?: (value: string) => void;
 };
 
-function FilterGroup({ title, options, selected, onSelect }: FilterGroupProps) {
+function FilterGroup({
+  title,
+  options,
+  selected = "",
+  onSelect,
+}: FilterGroupProps) {
   return (
     <section className="mt-5">
       <h3 className="text-sm font-medium text-white">{title}</h3>
@@ -32,7 +37,7 @@ function FilterGroup({ title, options, selected, onSelect }: FilterGroupProps) {
               <span className="flex items-center gap-3">
                 <Checkbox
                   checked={checked}
-                  onCheckedChange={() => onSelect(option.value)}
+                  onCheckedChange={() => onSelect?.(option.value)}
                 />
                 <span className="text-sm text-white/70 transition-colors group-hover:text-white">
                   {option.label}
@@ -53,10 +58,10 @@ function FilterGroup({ title, options, selected, onSelect }: FilterGroupProps) {
 type JobFiltersProps = {
   typeOptions: FilterOption[];
   categoryOptions: FilterOption[];
-  selectedType: string;
-  selectedCategory: string;
-  onSelectType: (value: string) => void;
-  onSelectCategory: (value: string) => void;
+  selectedType?: string;
+  selectedCategory?: string;
+  onSelectType?: (value: string) => void;
+  onSelectCategory?: (value: string) => void;
 };
 
 export function JobFilters({

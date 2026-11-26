@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AlertCircle, Briefcase } from "lucide-react";
 
 import { JOB_CATEGORIES, JOB_TYPES, type Job } from "@/types/job";
@@ -12,14 +13,25 @@ import { SortSelect, type SortValue } from "./sort-select";
 
 const JOBS_PER_PAGE = 6;
 
+// URL search-param names used by the filters.
+// Change these if your backend expects different names.
+const TYPE_PARAM = "jobType";
+const CATEGORY_PARAM = "category";
+
 type BrowseJobsProps = {
   jobs: Job[];
   error?: string | null;
 };
 
 export function BrowseJobs({ jobs, error }: BrowseJobsProps) {
-  const [selectedType, setSelectedType] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // Read the current filters from the URL.
+  const selectedType = searchParams.get(TYPE_PARAM) ?? "";
+  const selectedCategory = searchParams.get(CATEGORY_PARAM) ?? "";
+
   const [sort, setSort] = useState<SortValue>("recent");
   const [page, setPage] = useState(1);
 
@@ -35,14 +47,7 @@ export function BrowseJobs({ jobs, error }: BrowseJobsProps) {
     count: jobs.filter((job) => job.category === category).length,
   }));
 
-  // Only keep jobs that match the selected type and category.
-  const filteredJobs = jobs.filter((job) => {
-    if (selectedType && job.jobType !== selectedType) return false;
-    if (selectedCategory && job.category !== selectedCategory) return false;
-    return true;
-  });
-
-  const sortedJobs = sortJobs(filteredJobs, sort);
+  const sortedJobs = sortJobs(jobs, sort);
   const totalPages = Math.max(1, Math.ceil(sortedJobs.length / JOBS_PER_PAGE));
   const currentPage = Math.min(page, totalPages);
   const visibleJobs = sortedJobs.slice(
@@ -50,21 +55,32 @@ export function BrowseJobs({ jobs, error }: BrowseJobsProps) {
     currentPage * JOBS_PER_PAGE,
   );
 
-  // Clicking the selected filter again clears it.
-  function selectType(type: string) {
-    setSelectedType(selectedType === type ? "" : type);
-    setPage(1);
-  }
-
-  function selectCategory(category: string) {
-    setSelectedCategory(selectedCategory === category ? "" : category);
-    setPage(1);
-  }
-
   function handleSort(value: SortValue) {
     setSort(value);
     setPage(1);
     // TODO: update the URL search params with the selected sort.
+  }
+
+  // Add, replace, or remove one URL search param, keeping the others.
+  function updateParam(key: string, value: string) {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+
+    router.push(`${pathname}?${params.toString()}`);
+  }
+
+  // Clicking the active filter again clears it.
+  function selectType(type: string) {
+    updateParam(TYPE_PARAM, selectedType === type ? "" : type);
+  }
+
+  function selectCategory(category: string) {
+    updateParam(CATEGORY_PARAM, selectedCategory === category ? "" : category);
   }
 
   return (
@@ -84,8 +100,7 @@ export function BrowseJobs({ jobs, error }: BrowseJobsProps) {
         <section>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h1 className="text-lg font-semibold text-white sm:text-xl">
-              Found {filteredJobs.length.toLocaleString("en-US")} Professional
-              Jobs
+              Found {jobs.length.toLocaleString("en-US")} Professional Jobs
             </h1>
 
             <div className="flex items-center gap-2 text-sm text-white/50">
