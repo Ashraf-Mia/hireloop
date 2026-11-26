@@ -1,9 +1,9 @@
-import type { Job } from "@/types/job";
+import { JobForm } from "@/types/job";
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
 
-export async function getJobs(): Promise<Job[]> {
-  const res = await fetch(`${API_URL}/jobs`, { cache: "no-store" });
+export async function getJobs(qurey = ""): Promise<JobForm[]> {
+  const res = await fetch(`${API_URL}/jobs?${qurey}`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load jobs");
 
   const data = await res.json();
