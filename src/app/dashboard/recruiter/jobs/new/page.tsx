@@ -1,14 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import {
-  ArrowRight,
-  Briefcase,
-  Building2,
-  CalendarDays,
-  Globe,
-  MapPin,
-} from "lucide-react";
+import { ArrowRight, Briefcase, Building2, Globe, MapPin } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
@@ -30,39 +23,17 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { createJob } from "@/lib/actions/jobs";
-
-const JOB_CATEGORIES = [
-  "Engineering & Tech",
-  "Design",
-  "Marketing",
-  "Sales",
-  "Customer Support",
-  "Finance",
-  "Operations",
-  "Other",
-];
-
-const JOB_TYPES = ["Full-time", "Part-time", "Contract", "Internship"];
-
-const SALARY_FREQUENCIES = ["per hour", "per month", "per year"];
-
-// Everything the form collects, kept in one flat object.
-export type JobForm = {
-  jobTitle: string;
-  companyName: string;
-  category: string;
-  jobType: string;
-  remote: boolean;
-  location: string;
-  deadline: string;
-  minSalary: string;
-  maxSalary: string;
-  frequency: string;
-  responsibilities: string;
-  qualifications: string;
-};
+import { toast } from "@/components/ui/toast";
+import { useRouter } from "next/navigation";
+import {
+  JOB_CATEGORIES,
+  JOB_TYPES,
+  JobForm,
+  SALARY_FREQUENCIES,
+} from "@/types/job";
 
 const initialForm: JobForm = {
+  _id: "",
   jobTitle: "",
   companyName: "",
   category: "",
@@ -75,6 +46,8 @@ const initialForm: JobForm = {
   frequency: "per month",
   responsibilities: "",
   qualifications: "",
+  applicants: 0,
+  status: "active",
 };
 
 function Section({
@@ -98,6 +71,8 @@ function Section({
 }
 
 const NewJobPage = () => {
+  const router = useRouter();
+
   const [form, setForm] = useState<JobForm>(initialForm);
 
   function update<K extends keyof JobForm>(key: K, value: JobForm[K]) {
@@ -109,10 +84,26 @@ const NewJobPage = () => {
 
     const jobData: JobForm = { ...form };
 
-    const result = await createJob(jobData);
-    console.log("createdJob result", result);
-    // Replace with your API call when the backend is ready.
-    // console.log("New job:", form);
+    try {
+      const result = await createJob(jobData);
+      if (result.insertedId) {
+        console.log("createdJob result", result);
+        toast.add({
+          type: "success",
+          title: "Job created successfully!",
+          description: "Your job post has been published.",
+        });
+
+        router.push("/dashboard/recruiter/jobs");
+      }
+    } catch (error) {
+      toast.add({
+        type: "Warning",
+        title: "Job creation failed",
+        description:
+          error instanceof Error ? error.message : "Something went wrong.",
+      });
+    }
   };
 
   return (
@@ -271,15 +262,14 @@ const NewJobPage = () => {
                 <span className="text-brand">*</span>
               </FieldLabel>
               <InputGroup>
-                <InputGroupAddon>
-                  <CalendarDays />
-                </InputGroupAddon>
+                <InputGroupAddon></InputGroupAddon>
                 <InputGroupInput
                   id="deadline"
                   type="date"
                   value={form.deadline}
                   onChange={(e) => update("deadline", e.target.value)}
                   required
+                  className="[color-scheme:dark] w-full bg-transparent px-3 py-2 text-sm text-white outline-none"
                 />
               </InputGroup>
             </Field>

@@ -4,7 +4,13 @@ export const metadata: Metadata = {
   title: "Pricing | HireLoop",
 };
 
-export default function PricingPage() {
+export default async function BrowseJobsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const search = await searchParams;
+  console.log(search);
   return (
     <main className="min-h-screen bg-black px-4 pt-32 text-white sm:px-6">
       <div className="mx-auto max-w-6xl">
