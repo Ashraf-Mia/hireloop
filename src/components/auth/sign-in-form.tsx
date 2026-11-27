@@ -10,10 +10,13 @@ import { PasswordInput } from "./password-input";
 import { SocialButtons } from "./social-buttons";
 import { signIn } from "@/lib/auth-client";
 import { toast } from "../ui/toast";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 export function SignInForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirectTo") ?? "/";
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -28,7 +31,7 @@ export function SignInForm() {
 
       const { data, error } = await signIn.email({
         ...user,
-        callbackURL: "/",
+        callbackURL: redirectTo,
       });
 
       if (error) {
