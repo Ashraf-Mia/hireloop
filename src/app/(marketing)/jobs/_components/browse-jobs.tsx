@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { AlertCircle, Briefcase } from "lucide-react";
 
 import { JOB_CATEGORIES, JOB_TYPES, type Job } from "@/types/job";
@@ -13,24 +13,18 @@ import { SortSelect, type SortValue } from "./sort-select";
 
 const JOBS_PER_PAGE = 6;
 
-// URL search-param names used by the filters.
-// Change these if your backend expects different names.
-const TYPE_PARAM = "jobType";
-const CATEGORY_PARAM = "category";
-
 type BrowseJobsProps = {
   jobs: Job[];
   error?: string | null;
 };
 
 export function BrowseJobs({ jobs, error }: BrowseJobsProps) {
-  const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   // Read the current filters from the URL.
-  const selectedType = searchParams.get(TYPE_PARAM) ?? "";
-  const selectedCategory = searchParams.get(CATEGORY_PARAM) ?? "";
+  const selectedType = searchParams.get("jobType") ?? "";
+  const selectedCategory = searchParams.get("category") ?? "";
+  const search = searchParams.get("search") ?? "";
 
   const [sort, setSort] = useState<SortValue>("recent");
   const [page, setPage] = useState(1);
@@ -61,40 +55,18 @@ export function BrowseJobs({ jobs, error }: BrowseJobsProps) {
     // TODO: update the URL search params with the selected sort.
   }
 
-  // Add, replace, or remove one URL search param, keeping the others.
-  function updateParam(key: string, value: string) {
-    const params = new URLSearchParams(searchParams.toString());
-
-    if (value) {
-      params.set(key, value);
-    } else {
-      params.delete(key);
-    }
-
-    router.push(`${pathname}?${params.toString()}`);
-  }
-
-  // Clicking the active filter again clears it.
-  function selectType(type: string) {
-    updateParam(TYPE_PARAM, selectedType === type ? "" : type);
-  }
-
-  function selectCategory(category: string) {
-    updateParam(CATEGORY_PARAM, selectedCategory === category ? "" : category);
-  }
-
   return (
     <div>
       <SearchBar />
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start">
         <JobFilters
+          key={`${search}|${selectedType}|${selectedCategory}`}
           typeOptions={typeOptions}
           categoryOptions={categoryOptions}
           selectedType={selectedType}
           selectedCategory={selectedCategory}
-          onSelectType={selectType}
-          onSelectCategory={selectCategory}
+          search={search}
         />
 
         <section>
@@ -137,9 +109,7 @@ export function BrowseJobs({ jobs, error }: BrowseJobsProps) {
 
 function sortJobs(jobs: Job[], sort: SortValue) {
   if (sort === "deadline") {
-    return [...jobs].sort(
-      (a, b) => deadlineValue(a) - deadlineValue(b),
-    );
+    return [...jobs].sort((a, b) => deadlineValue(a) - deadlineValue(b));
   }
 
   if (sort === "salary") {

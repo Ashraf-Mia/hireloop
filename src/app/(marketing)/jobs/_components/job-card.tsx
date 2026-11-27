@@ -9,6 +9,8 @@ import {
 
 import type { Job } from "@/types/job";
 import { formatLocation, formatSalary, getCategoryMeta } from "@/lib/job-utils";
+import { redirect } from "next/navigation";
+// import Link from "next/link";
 
 type JobCardProps = {
   job: Job;
@@ -18,8 +20,15 @@ export function JobCard({ job }: JobCardProps) {
   const meta = getCategoryMeta(job.category);
   const CategoryIcon = meta.icon;
 
+  const handleviewDetail = () => {
+    redirect(`/jobs/${job._id}`);
+  };
+
   return (
-    <article className="rounded-xl border border-white/10 bg-[#0d0d0d] p-5 transition-colors hover:border-white/20">
+    <article
+      onClick={handleviewDetail}
+      className="rounded-xl border border-white/10 bg-[#0d0d0d] p-5 transition-colors hover:border-white/20"
+    >
       <div className="flex items-start gap-4">
         <span
           className={`flex size-12 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] ${meta.text}`}
